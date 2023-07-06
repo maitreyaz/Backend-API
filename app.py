@@ -10,7 +10,7 @@ import sqlite3
 # Creating an instance of our app
 app = Flask(__name__)
 
-# This variable store the path of database so that we can access it later
+# This variable stores the path of database so that we can access it later
 DATABASE = './DATABASE.db'
 
 # Secret Key for authentication
@@ -47,12 +47,17 @@ def protected_route(func):
     @wraps(func)
     def decorated(*args, **kwargs):
         token = request.cookies.get('token')
+        print(token)
         if not token:
             return jsonify({'Alert!': 'Authenticaion required!'}), 401
         try:
-            data = jwt.decode(token, app.config['SECRET_KEY'])
+            print(app.config['SECRET_KEY'])
+            data = jwt.decode(str(token), app.config['SECRET_KEY'])
         except:
-            return jsonify({'Message': 'Invalid token'}), 403
+            response = make_response(jsonify({'Message': 'Invalid token'}), 403)
+            session.clear() 
+            response.set_cookie('token', '', expires=0)
+            return response
         return func(*args, **kwargs)
     return decorated
 
@@ -85,7 +90,7 @@ def get_token():
 def dashboard():
     return render_template("dashboard.html")
 
-# Public route
+# Public route...doesn't require auth
 @app.route('/public')
 def public():
     return 'For Public'
@@ -121,13 +126,14 @@ def login():
     user = cursor.fetchone()
     if user:
         session['logged_in'] = True
-
+        expiration_time = datetime.utcnow() + timedelta(hours=24)
         token = jwt.encode({
             'user': email,
-            'expiration': str(datetime.utcnow() + timedelta(seconds=600))
+            'expiration': str(expiration_time)
         }, app.config['SECRET_KEY'])
+
         response = redirect("/dashboard")
-        response.set_cookie('token', token, httponly=True) #.decode('utf-8')
+        response.set_cookie('token', token, expires=expiration_time, httponly=True)
 
         return response
     else:
