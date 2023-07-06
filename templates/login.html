@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login</title>
+  <style>
+    .signup{
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+
+<body>
+  <form class="signup" action="/signup" method="POST">
+    <input type="email" name="email" placeholder="Email"> <br><br>
+    <input type="password" name="password" placeholder="Password"> <br><br>
+    <button type="submit" >Signup</button>
+  </form>
+  <form class="login" action="/login" method="POST">
+    <input type="email" name="email" placeholder="Email"> <br><br>
+    <input type="password" name="password" placeholder="Password"> <br><br>
+    <button type="submit" >Login</button>
+  </form>
+  <br>
+  <a href="/api/books">View books list</a>
+  <p>(Book list at /api/books won't be accessible, since user is not authenticated)</p>
+</body>
+
+</html>
